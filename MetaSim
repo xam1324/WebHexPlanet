@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+		<title>MetaSim</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #000;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				font-weight: bold;
+
+				background-color: #848484;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				color:#000;
+				position: absolute;
+				top: 0px; width: 100%;
+				padding: 5px;
+
+			}
+
+			a {
+				color: red;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="container"></div>
+		<div id="info">
+			<a href="http://threejs.org" target="_blank">three.js</a> - MetaSim
+		</div>
+
+		<script src="src/three.min.js"></script>
+		<script src="src/OrbitControls.js"></script>
+		<script src="src/Detector.js"></script>
+		<script src="src/stats.min.js"></script>
+		<script src="src/dat.gui.min.js"></script>
+		<script src="FirstPersonControls.js"></script>
+		
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var container, stats;
+			var camera, controls, scene, renderer;
+			var cross;
+			var Planet_Size = 1000;
+			init();
+			animate();
+
+			function init() {
+
+				orbitalCamera();
+				
+				scene = new THREE.Scene();
+
+				// world
+
+				var geometry = new THREE.IcosahedronGeometry( Planet_Size, 3 );
+				var material =  new THREE.MeshLambertMaterial( { color:0xffffff } );
+				var mesh = new THREE.Mesh( geometry, material );
+				scene.add( mesh );
+
+
+				// lights
+				light = new THREE.DirectionalLight( 0xffffff ,1);
+				light.position.set( 1, 0, 0 );
+				scene.add( light );
+				var sun = new THREE.IcosahedronGeometry( 5000, 2 );
+				var sunmaterial =  new THREE.MeshBasicMaterial( { color:0xFFFF00} );
+				var sunmesh = new THREE.Mesh( geometry, sunmaterial );
+				sunmesh.position.set( 90000, 0, 0 );
+				sunmesh.scale.x = 8;
+				sunmesh.scale.y = 8;
+				sunmesh.scale.z = 8;
+				scene.add(sunmesh);
+
+				// renderer
+				
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container = document.getElementById( 'container' );
+				container.appendChild( renderer.domElement );
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.top = '0px';
+				stats.domElement.style.zIndex = 100;
+				container.appendChild( stats.domElement );
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				render();
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				controls.update();
+
+			}
+
+			function render() {
+
+				renderer.render( scene, camera );
+				stats.update();
+				
+				
+				
+			}
+
+			function orbitalCamera() {
+				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 500000 );
+				camera.position.z = 5000;
+				controls = new THREE.OrbitControls( camera );
+				controls.addEventListener( 'change', render );
+			
+			}
+
+			function fpsCamera() {
+			
+				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 50000 );
+				controls = new THREE.FirstPersonControls( camera );
+				controls.addEventListener( 'change', render );
+			}
+			
+			
+		</script>
+
+	</body>
+</html>
